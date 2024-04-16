@@ -11,11 +11,11 @@ class Poller:
 
     async def start(self) -> None:
         # TODO: добавить asyncio Task на запуск poll
-        raise NotImplementedError
+        pass
 
     async def stop(self) -> None:
         # TODO: gracefully завершить Poller
-        raise NotImplementedError
+        pass
 
     async def poll(self) -> None:
-        raise NotImplementedError
+        pass

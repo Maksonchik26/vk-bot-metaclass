@@ -14,7 +14,9 @@ class BaseAccessor:
         app.on_cleanup.append(self.disconnect)
 
     async def connect(self, app: "Application"):
-        return
+        self.app = app
+        print("connect to database")
 
     async def disconnect(self, app: "Application"):
-        return
+        self.app = None
+        print("disconnect from database")
