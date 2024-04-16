@@ -1,11 +1,13 @@
 import typing
 from urllib.parse import urlencode, urljoin
 
+import aiohttp
 from aiohttp.client import ClientSession
 
 from app.base.base_accessor import BaseAccessor
 from app.store.vk_api.dataclasses import Message
 from app.store.vk_api.poller import Poller
+from config import GROUP_ID, ACCESS_TOKEN
 
 if typing.TYPE_CHECKING:
     from app.web.app import Application
@@ -23,14 +25,29 @@ class VkApiAccessor(BaseAccessor):
         self.ts: int | None = None
 
     async def connect(self, app: "Application"):
-        # TODO: добавить создание aiohttp ClientSession,
-        #  получить данные о long poll сервере с помощью метода groups.getLongPollServer
-        #  вызвать метод start у Poller
-        pass
+
+        url = 'https://api.vk.com/method/groups.getLongPollServer'
+        params = {
+            'group_id': GROUP_ID,
+            'access_token': ACCESS_TOKEN,
+            'v': '5.131'
+        }
+
+        self.session = aiohttp.ClientSession()
+        async with self.session.get(url, params=params) as response:
+            data = await response.json()
+
+            if 'response' in data:
+                self.server = data['response']['server']
+                self.key = data['response']['key']
+                self.ts = data['response']['ts']
+            else:
+                print('Ошибка при получении сессии Long Poll сервера')
+
+            await self.poller.start()
 
     async def disconnect(self, app: "Application"):
-        # TODO: закрыть сессию и завершить поллер
-        pass
+        self.session.close()
 
     @staticmethod
     def _build_query(host: str, method: str, params: dict) -> str:
@@ -44,4 +61,5 @@ class VkApiAccessor(BaseAccessor):
         pass
 
     async def send_message(self, message: Message) -> None:
-        pass
+        url = f"https://api.vk.com/method/messages.send?user_id={message.user_id}&message={message.text}"
+        await self.session.post(url)

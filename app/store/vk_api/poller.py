@@ -1,3 +1,4 @@
+import asyncio
 from asyncio import Task
 
 from app.store import Store
@@ -11,11 +12,19 @@ class Poller:
 
     async def start(self) -> None:
         # TODO: добавить asyncio Task на запуск poll
-        pass
+        self.is_running = True
+        self.poll_task = asyncio.create_task(self.poll())
 
     async def stop(self) -> None:
         # TODO: gracefully завершить Poller
-        pass
+        self.is_running = False
+        self.poll_task.cancel()
 
     async def poll(self) -> None:
-        pass
+        ts = self.store.vk_api.ts
+        while True:
+            async with self.store.vk_api.session.get(f"https://lp.vk.com/whp/225575691?act=a_check&key={self.store.vk_api.key}&ts={ts}&wait=25") as response:
+                data = await response.json()
+                ts = data["ts"]
+                updates = data["update"]
+                self.store.bots_manager.handle_updates(updates)
