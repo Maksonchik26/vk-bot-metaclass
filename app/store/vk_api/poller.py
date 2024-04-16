@@ -23,6 +23,6 @@ class Poller:
         while True:
             async with self.store.vk_api.session.get(f"https://lp.vk.com/whp/{self.store.app.config.bot.group_id}?act=a_check&key={self.store.vk_api.key}&ts={ts}&wait=25") as response:
                 data = await response.json()
-                ts = data["ts"]
-                updates = data["update"]
-                self.store.bots_manager.handle_updates(updates)
+                ts = data.get("ts")
+                updates = data.get("update")
+                await self.store.bots_manager.handle_updates(updates)

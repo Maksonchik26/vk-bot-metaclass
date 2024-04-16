@@ -14,5 +14,5 @@ class BotManager:
         messages = [update.object.message for update in updates]
         for message in messages:
             msg = Message(message.from_id, "Hey")
-            self.app.store.vk_api.send_message(msg)
+            await self.app.store.vk_api.send_message(msg)
 

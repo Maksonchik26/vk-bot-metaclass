@@ -24,7 +24,21 @@ class VkApiAccessor(BaseAccessor):
         self.ts: int | None = None
 
     async def connect(self, app: "Application"):
+        self.session = aiohttp.ClientSession()
+        await self._get_long_poll_service()
 
+        self.poller = Poller(self.app.store)
+        await self.poller.start()
+
+    async def disconnect(self, app: "Application"):
+        await self.session.close()
+
+    @staticmethod
+    def _build_query(host: str, method: str, params: dict) -> str:
+        params.setdefault("v", API_VERSION)
+        return f"{urljoin(host, method)}?{urlencode(params)}"
+
+    async def _get_long_poll_service(self):
         url = 'https://api.vk.com/method/groups.getLongPollServer'
         params = {
             'group_id': self.app.config.bot.group_id,
@@ -32,7 +46,6 @@ class VkApiAccessor(BaseAccessor):
             'v': API_VERSION
         }
 
-        self.session = aiohttp.ClientSession()
         async with self.session.get(url, params=params) as response:
             data = await response.json()
 
@@ -42,20 +55,6 @@ class VkApiAccessor(BaseAccessor):
                 self.ts = data['response']['ts']
             else:
                 print('Ошибка при получении сессии Long Poll сервера')
-
-            self.poller = Poller(self.app.store)
-            await self.poller.start()
-
-    async def disconnect(self, app: "Application"):
-        self.session.close()
-
-    @staticmethod
-    def _build_query(host: str, method: str, params: dict) -> str:
-        params.setdefault("v", API_VERSION)
-        return f"{urljoin(host, method)}?{urlencode(params)}"
-
-    async def _get_long_poll_service(self):
-        pass
 
     async def poll(self):
         pass

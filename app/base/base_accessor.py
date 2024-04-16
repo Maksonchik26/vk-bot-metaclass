@@ -19,4 +19,3 @@ class BaseAccessor:
 
     async def disconnect(self, app: "Application"):
         self.app = None
-        print("disconnect from database")
