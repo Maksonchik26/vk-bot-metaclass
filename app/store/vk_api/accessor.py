@@ -43,6 +43,7 @@ class VkApiAccessor(BaseAccessor):
             else:
                 print('Ошибка при получении сессии Long Poll сервера')
 
+            self.poller = Poller(self.app.store)
             await self.poller.start()
 
     async def disconnect(self, app: "Application"):
