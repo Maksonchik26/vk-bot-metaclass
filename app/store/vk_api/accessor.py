@@ -7,7 +7,6 @@ from aiohttp.client import ClientSession
 from app.base.base_accessor import BaseAccessor
 from app.store.vk_api.dataclasses import Message
 from app.store.vk_api.poller import Poller
-from config import GROUP_ID, ACCESS_TOKEN
 
 if typing.TYPE_CHECKING:
     from app.web.app import Application
@@ -28,9 +27,9 @@ class VkApiAccessor(BaseAccessor):
 
         url = 'https://api.vk.com/method/groups.getLongPollServer'
         params = {
-            'group_id': GROUP_ID,
-            'access_token': ACCESS_TOKEN,
-            'v': '5.131'
+            'group_id': self.app.config.bot.group_id,
+            'access_token': self.app.config.bot.token,
+            'v': API_VERSION
         }
 
         self.session = aiohttp.ClientSession()

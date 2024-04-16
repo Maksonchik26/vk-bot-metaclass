@@ -37,4 +37,3 @@ def error_json_response(
 def hash_password(password: str):
     password = base64.b64encode(password.encode("UTF-8")).decode()
     return password
-

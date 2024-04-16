@@ -11,19 +11,17 @@ class Poller:
         self.poll_task: Task | None = None
 
     async def start(self) -> None:
-        # TODO: добавить asyncio Task на запуск poll
         self.is_running = True
         self.poll_task = asyncio.create_task(self.poll())
 
     async def stop(self) -> None:
-        # TODO: gracefully завершить Poller
         self.is_running = False
         self.poll_task.cancel()
 
     async def poll(self) -> None:
         ts = self.store.vk_api.ts
         while True:
-            async with self.store.vk_api.session.get(f"https://lp.vk.com/whp/225575691?act=a_check&key={self.store.vk_api.key}&ts={ts}&wait=25") as response:
+            async with self.store.vk_api.session.get(f"https://lp.vk.com/whp/{self.store.app.config.bot.group_id}?act=a_check&key={self.store.vk_api.key}&ts={ts}&wait=25") as response:
                 data = await response.json()
                 ts = data["ts"]
                 updates = data["update"]

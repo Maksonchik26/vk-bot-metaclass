@@ -66,8 +66,6 @@ async def error_handling_middleware(request: "Request", handler):
         )
 
     return response
-    # TODO: обработать все исключения-наследники HTTPException и отдельно Exception, как server error
-    #  использовать текст из HTTP_ERROR_CODES
 
 
 def setup_middlewares(app: "Application"):
