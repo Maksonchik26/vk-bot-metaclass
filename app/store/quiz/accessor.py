@@ -44,6 +44,9 @@ class QuizAccessor(BaseAccessor):
     async def list_questions(
         self, theme_id: int | None = None
     ) -> list[Question]:
-        questions = [question for question in self.app.database.questions]
+        if theme_id:
+            questions = [question for question in self.app.database.questions if question.theme_id == theme_id]
+        else:
+            questions = [question for question in self.app.database.questions]
 
         return questions

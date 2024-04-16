@@ -1,7 +1,7 @@
 import json
 import typing
 
-from aiohttp.web_exceptions import HTTPUnprocessableEntity, HTTPUnauthorized, HTTPForbidden, HTTPConflict, HTTPNotFound
+from aiohttp.web_exceptions import HTTPUnprocessableEntity, HTTPUnauthorized, HTTPForbidden, HTTPConflict, HTTPNotFound, HTTPBadRequest
 from aiohttp.web_middlewares import middleware
 from aiohttp_apispec import validation_middleware
 from aiohttp_session import setup
@@ -27,13 +27,6 @@ HTTP_ERROR_CODES = {
 async def error_handling_middleware(request: "Request", handler):
     try:
         response = await handler(request)
-    except HTTPUnprocessableEntity as e:
-        return error_json_response(
-            http_status=400,
-            status=HTTP_ERROR_CODES[400],
-            message=e.reason,
-            data=json.loads(e.text),
-        )
     except HTTPUnauthorized as e:
         return error_json_response(
             http_status=401,
@@ -45,6 +38,19 @@ async def error_handling_middleware(request: "Request", handler):
             http_status=403,
             status=HTTP_ERROR_CODES[403],
             message="Wrong login or password. Try Again",
+        )
+    except HTTPUnprocessableEntity as e:
+        return error_json_response(
+            http_status=400,
+            status=HTTP_ERROR_CODES[400],
+            message=e.reason,
+            data=json.loads(e.text)
+        )
+    except HTTPBadRequest as e:
+        return error_json_response(
+            http_status=400,
+            status=HTTP_ERROR_CODES[400],
+            message=e.reason
         )
     except HTTPConflict as e:
         return error_json_response(

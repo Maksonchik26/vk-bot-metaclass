@@ -45,7 +45,7 @@ class ResponseQuestionSchema(OkResponseSchema):
 
 
 class GetListQuestionSchema(Schema):
-    theme_id = fields.Int(required=True)
+    theme_id = fields.Int(required=False)
 
 
 class ResponseListQuestionSchema(OkResponseSchema):

@@ -9,30 +9,21 @@ from app.web.mixins import AuthRequiredMixin
 from app.web.utils import json_response
 
 
-class AdminLoginView(View, AuthRequiredMixin):
+class AdminLoginView(View):
     @docs(tags=["admin"], summary="Login admin", description="Login admin in the app")
     @request_schema(LoginAdminRequestSchema)
     @response_schema(AdminResponseSchema, 201)
     async def post(self):
         data = self.request["data"]
-        await self.check_credentials(data)
+        data_json = await AuthRequiredMixin.auth_admin(self.request, self.request.app, data)
 
-        session = await aiohttp_session.new_session(self.request)
-        session["email"] = data["email"]
-        session["password"] = data["password"]
-        loginned_admin = await self.request.app.store.admins.get_by_email(session["email"])
-        data = AdminSchema().dump(loginned_admin)
-
-        return json_response(data=data)
+        return json_response(data=data_json)
 
 
-class AdminCurrentView(View, AuthRequiredMixin):
+class AdminCurrentView(View):
     @docs(tags=["admin"], summary="Get current admin", description="Get current admin")
     @response_schema(AdminResponseSchema, 201)
     async def get(self):
-        session = await aiohttp_session.get_session(self.request)
-        await self.check_auth()
-        current_admin = await self.request.app.store.admins.get_by_email(session.get("email"))
-        data = AdminSchema().dump(current_admin)
+        admin = await AuthRequiredMixin.check_auth_admin(self.request, self.request.app)
 
-        return json_response(data=data)
+        return json_response(AdminSchema().dump(admin))

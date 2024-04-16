@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 class AdminAccessor(BaseAccessor):
 
     async def connect(self, app: "Application") -> None:
-        password = hash_password(f"{app.config.admin.email}:{app.config.admin.password}")
+        password = hash_password(f"{app.config.admin.password}")
         admin = await self.create_admin(app.config.admin.email, password)
         app.database.admins.append(admin)
 
@@ -24,5 +24,5 @@ class AdminAccessor(BaseAccessor):
         return None
 
     async def create_admin(self, email: str, password: str) -> Admin:
-        admin = Admin(id=1, email=email, password=password) #TODO Поправить id=
+        admin = Admin(id=1, email=email, password=password)
         return admin
