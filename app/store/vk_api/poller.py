@@ -2,6 +2,7 @@ import asyncio
 from asyncio import Task
 
 from app.store import Store
+from app.store.vk_api.dataclasses import Update, UpdateObject, UpdateMessage
 
 
 class Poller:
@@ -19,10 +20,6 @@ class Poller:
         self.poll_task.cancel()
 
     async def poll(self) -> None:
-        ts = self.store.vk_api.ts
-        while True:
-            async with self.store.vk_api.session.get(f"https://lp.vk.com/whp/{self.store.app.config.bot.group_id}?act=a_check&key={self.store.vk_api.key}&ts={ts}&wait=25") as response:
-                data = await response.json()
-                ts = data.get("ts")
-                updates = data.get("update")
-                await self.store.bots_manager.handle_updates(updates)
+        while self.is_running:
+            self.store.vk_api.poll()
+

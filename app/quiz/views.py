@@ -18,7 +18,7 @@ class ThemeAddView(View):
         if title in [theme.title for theme in await self.request.app.store.quizzes.list_themes()]:
             raise HTTPConflict
         theme = await self.store.quizzes.create_theme(title=title)
-        print(self.request.app.database.questions, self.request.app.database.themes)
+
         return json_response(data=ThemeSchema().dump(theme))
 
 

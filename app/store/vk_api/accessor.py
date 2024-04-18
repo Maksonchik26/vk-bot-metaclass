@@ -2,10 +2,11 @@ import typing
 from urllib.parse import urlencode, urljoin
 
 import aiohttp
+from aiohttp import TCPConnector
 from aiohttp.client import ClientSession
 
 from app.base.base_accessor import BaseAccessor
-from app.store.vk_api.dataclasses import Message
+from app.store.vk_api.dataclasses import Message, Update, UpdateObject, UpdateMessage
 from app.store.vk_api.poller import Poller
 
 if typing.TYPE_CHECKING:
@@ -24,14 +25,22 @@ class VkApiAccessor(BaseAccessor):
         self.ts: int | None = None
 
     async def connect(self, app: "Application"):
-        self.session = aiohttp.ClientSession()
-        await self._get_long_poll_service()
+        self.session = aiohttp.ClientSession(connector=TCPConnector(verify_ssl=False))
+        try:
+            await self._get_long_poll_service()
+        except Exception as e:
+            self.logger.error("Exception", exc_info=e)
 
         self.poller = Poller(self.app.store)
+        self.logger.info("Start polling")
         await self.poller.start()
 
     async def disconnect(self, app: "Application"):
-        await self.session.close()
+        if self.session:
+            await self.session.close()
+
+        if self.poller:
+            await self.poller.stop()
 
     @staticmethod
     def _build_query(host: str, method: str, params: dict) -> str:
@@ -56,9 +65,30 @@ class VkApiAccessor(BaseAccessor):
             else:
                 print('Ошибка при получении сессии Long Poll сервера')
 
+    #TODO Переписать get() как в функции выше
     async def poll(self):
-        pass
+        async with self.app.store.vk_api.session.get(
+                f"https://lp.vk.com/whp/{self.app.store.app.config.bot.group_id}?act=a_check&key={self.key}&ts={self.ts}&wait=25") as response:
+            data = await response.json()
+            self.ts = data.get("ts")
 
+            updates = [
+                Update(
+                    type=update["type"],
+                    object=UpdateObject(
+                        message=UpdateMessage(
+                            id=update["object"]["message"]["id"],
+                            from_id=["object"]["message"]["from_id"],
+                            text=["object"]["message"]["text"],
+                        )
+                    )
+                )
+                for update in data.get("updates")
+            ]
+
+            await self.app.store.bots_manager.handle_updates(updates)
+
+    # TODO Переписать get() как в функции выше
     async def send_message(self, message: Message) -> None:
-        url = f"https://api.vk.com/method/messages.send?user_id={message.user_id}&message={message.text}"
+        url = f"https://api.vk.com/method/messages.send?user_id={message.user_id}&message={message.text}&access_token={self.app.config.bot.token}"
         await self.session.post(url)
