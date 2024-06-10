@@ -18,3 +18,11 @@ jobs:
         with:
           name: build-files  # Уточнить, зачем нужны артифакты...
           path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get built project
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
