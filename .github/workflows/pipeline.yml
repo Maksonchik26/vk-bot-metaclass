@@ -1,5 +1,5 @@
 name: Check homework
-on: [push]
+on: workflow_dispatch
 jobs:
   validate:
     if: ${{ github.repository_owner != 'ktsstudio' }}
