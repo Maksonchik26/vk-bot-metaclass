@@ -20,7 +20,7 @@ jobs:
       - name: Lint Application  
         run: |
           pip install pylint
-          pylint $(git ls-files '*.py') --output=lint.txt || true
+          pylint --recursive=y --exit-zero app
   build:
     runs-on: ubuntu-latest
     steps:
