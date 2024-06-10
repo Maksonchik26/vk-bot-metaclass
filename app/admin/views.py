@@ -6,7 +6,6 @@ from app.web.mixins import AuthRequiredMixin
 from app.web.utils import json_response
 
 
-#TODO изменить миксиы как в видео или поменять на мидлвары
 class AdminLoginView(View):
     @docs(tags=["admin"], summary="Login admin", description="Login admin in the app")
     @request_schema(LoginAdminRequestSchema)
