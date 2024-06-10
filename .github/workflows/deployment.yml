@@ -11,6 +11,13 @@ jobs:
     steps:
       - name: Get the repository code
         uses: actions/checkout@v4
+      - name: Cache deps
+        uses: actions/checkout@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Test Application
@@ -21,6 +28,13 @@ jobs:
     steps:
       - name: Get the repository code
         uses: actions/checkout@v4
+      - name: Cache deps
+        uses: actions/checkout@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Lint Application
@@ -33,6 +47,13 @@ jobs:
     steps:
       - name: Get the repository code
         uses: actions/checkout@v4
+      - name: Cache deps
+        uses: actions/checkout@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Build Application
