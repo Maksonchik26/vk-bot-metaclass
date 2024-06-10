@@ -1,11 +1,11 @@
-from aiohttp.web_exceptions import HTTPUnprocessableEntity, HTTPConflict, HTTPNotFound, HTTPBadRequest
+from aiohttp.web_exceptions import HTTPConflict, HTTPNotFound, HTTPBadRequest
 from aiohttp_apispec import docs, request_schema, response_schema, querystring_schema
 
 from app.quiz.schemes import (ThemeSchema, AddThemeSchema, AddQuestionSchema, ResponseThemeSchema,
                               ResponseListThemeSchema, ResponseQuestionSchema, QuestionSchema, GetListQuestionSchema)
 from app.web.app import View
 from app.web.mixins import AuthRequiredMixin
-from app.web.utils import json_response, error_json_response
+from app.web.utils import json_response
 
 
 class ThemeAddView(View):
