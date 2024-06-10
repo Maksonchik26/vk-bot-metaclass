@@ -2,7 +2,7 @@ name: Test Aiohttp App
 on:
   push:
     branches:
-      - master
+      - main
     paths-ignore:
       - '.github/workflows/*'
 jobs:
