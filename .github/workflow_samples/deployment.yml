@@ -48,6 +48,7 @@ jobs:
           pylint --recursive=y --exit-zero app
   build:
     needs: [lint, test]
+#    continue-on-error: True    Добавить, чтобы CI/CD продолжался при ошибках в этой job
     strategy:
       matrix:
         python-version: ['3.12', '3.10']
